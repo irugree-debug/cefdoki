@@ -41,7 +41,6 @@
 					<div class="birthdate" id="birthdate">01.01.1970</div>
 					<div class="birthplace">Г. ЮЖНЫЙ<br>НИЖЕГОРОДСКАЯ ОБЛАСТЬ<br>РОССИЯ</div>
 					<div class="meta">PNRUS<<<span id="translatePassport">ZUBENKOMICHAELPETROVICH</span><<<<<<<<<<<5364347594rus752364<<< div>
-					<img id="avatar" src="images/avatar.png" alt="avatar" class="avatar">
 					<div class="id">86    53    842521</div>
 				</5364347594rus752364<<<></div>
 			</div>
@@ -266,33 +265,7 @@
 	</div>
 
 <script>
-	
-	function showPassport(surname, name, patronymic, sex, birthdate, avatar){
-	    // Добавим проверку, чтобы скрипт не падал, если элемента нет
-	    var passDiv = document.getElementById('passport');
-	    if(!passDiv) return;
-	
-	    passDiv.style.display = "block";
-	    
-	    // Присваиваем значения
-	    document.getElementById('surname').innerText = surname;
-	    document.getElementById('name').innerText = name;
-	    document.getElementById('patronymic').innerText = patronymic;
-	    document.getElementById('sex').innerText = sex;
-	    document.getElementById('birthdate').innerText = birthdate;
-	    
-	    // Проверьте, существует ли элемент 'avatar' в HTML. 
-	    // В вашем index.html его нет в блоке passport, есть только .bg
-	    var avatarImg = document.getElementById('avatar'); 
-	    if(avatarImg) {
-	        avatarImg.src = `img/documents/passport/skins/${avatar}.png`;
-	    }
-	
-	    // Транслитерация
-	    trans = ''; 
-	    document.getElementById('translatePassport').innerText = translit(surname + name + patronymic);
-	}
-	
+
 	function showGov(skin, number, name1, name2, name3, rank) {
 		document.getElementById('government').style.display = 'block';
 
@@ -499,12 +472,492 @@
 		document.getElementById('mchs').style.display = "none";
 	}
 
-
+	function showPassport(surname, name, patronymic, sex, birthdate, avatar){
+		translit(surname+name+patronymic);
+		document.getElementById('passport').style.display = "block";
+		document.getElementById('surname').innerText = `${surname}`;
+		document.getElementById('name').innerText = `${name}`;
+		document.getElementById('patronymic').innerText = `${patronymic}`;
+		document.getElementById('sex').innerText = `${sex}`;
+		document.getElementById('birthdate').innerText = `${birthdate}`;
+		document.getElementById('avatar').src=`img/documents/passport/skins/${avatar}.png`
+		document.getElementById('translatePassport').innerText = `${trans}`
+	}
 
 	function hidePassport(surname, name, patronymic, sex, birthdate, avatar){
 		document.getElementById('passport').style.display = "none";
 		trans = '';
 	}
+
+	var turn_left = false,
+	turn_right = false,
+	turn_signal_timer = null;
+
+	function setBar(type, value) {
+		var progress_value = value;
+
+		if(progress_value > 100) {
+			progress_value = 100;
+		}
+
+		document.getElementById(`progress_${type}`).style = `width: calc(${progress_value}% - 0.4vw)`;
+		document.getElementById(`text_${type}`).innerText = `${Math.round(value)}`;
+	}
+
+	function cleanNeedClasses(element) {
+		element.classList.remove('short_low');
+		element.classList.remove('short_normal');
+		element.classList.remove('short_good');
+		element.classList.remove('short_high');
+	}
+
+	function setNeed(type, value) {
+		if(value < 0) {
+			value = 0;
+		}
+
+		var bar_status = 'low';
+
+		if(value >= 80) {
+			bar_status = 'high';
+		}
+		else if(value >= 50) {
+			bar_status = 'good';
+		}
+		else if(value >= 25) {
+			bar_status = 'normal';
+		}
+
+		var bar_elem = document.getElementById(`need_${type}`);
+
+		cleanNeedClasses(bar_elem);
+
+		bar_elem.classList.add(`short_${bar_status}`);
+		document.getElementById(`text_${type}`).innerText = `${value}`;
+	}
+
+	function showInterface(interface, show) {
+		if(isInterfaceHidden(interface) !== undefined) {
+			var interface_elem = document.getElementById(interface);
+
+			interface_elem.hidden = !show;
+			
+			if(show) {
+				interface_elem.style = '';
+			}
+			else {
+				interface_elem.style = `display: none`;
+			}
+		}
+	}
+
+	function showTransmission(type, show) {
+		if(type == 'manual' || type == 'automatic') {
+			var display_type = 'none';
+
+			if(show) {
+				display_type = 'block';
+			}
+
+			document.getElementById(`transmission_${type}`).style = `display: ${display_type}`;
+
+			clearTransmissionGears(type);
+		}
+	}
+
+	function setSpeedIcon(type, value) {
+		var icon_elem = document.getElementById(`flag_${type}`);
+
+		if(icon_elem !== null) {
+			icon_elem.classList.remove('active');
+
+			if(Boolean(value)) {
+				icon_elem.classList.add('active');
+			}
+		}
+	}
+
+	function getWeaponImage(weaponid) {
+		switch(weaponid) {
+			case 1:
+			return 'kast';
+			break;
+			case 3:
+			return 'dubina';
+			break;
+			case 4:
+			return 'knife';
+			break;
+			case 5:
+			return 'bita';
+			break;
+			case 9:
+			return 'pila';
+			break;				
+			case 23:
+			return 'silenced';
+			break;
+			case 24:
+			return 'makarov';
+			break;
+			case 29:
+			return 'aksu';
+			break;
+			case 30:
+			return 'ak';
+			break;
+			case 31:
+			return 'akm';
+			break;
+			case 34:
+			return 'svd';
+			break;
+			case 41:
+			return 'spr';
+			break;
+			case 42:
+			return 'fire';
+			break;
+			case 43:
+			return 'cam';
+			break;
+			case 46:
+			return 'par';
+			break;	
+			default:
+			return 'fist';
+		}
+	}
+
+	function setSpeedCircle(speed) {
+		var speed_value = Math.round((188.25 / 240) * speed);
+
+		document.getElementById('speed_circle').style = `stroke-dasharray: ${speed_value}% 500%;`;
+	}
+
+	function isInterfaceHidden(interface) {
+		var interface_elem = document.getElementById(interface);
+
+		if(interface_elem !== null) {
+			return interface_elem.hidden;
+		}
+		else {
+			return undefined;
+		}
+	}
+
+	function moneyFormat(number) {
+		var text_fmt = `${number}`;
+		var text_tmp = text_fmt;
+		var text_len = text_fmt.length;
+
+		var dots_count = 0;
+
+		for(var idx = 0; idx < (text_len - 1); idx++) {
+			if(text_tmp[idx] == '.') {
+				continue;
+			}
+
+			if(((text_len - (idx + 1)) % 3) == 0) {
+				dots_count++;
+
+				text_tmp = text_tmp.slice(0, idx + dots_count) + '.' + text_tmp.slice(idx + dots_count);
+			}
+		}
+
+		return text_tmp;
+	}
+
+	function dateTimeFormat(number) {
+		if(number < 10) {
+			number = '0' + number;
+		}
+
+		return ('' + number);
+	}
+
+	function updateDateTime() {
+		var date = new Date();
+
+		var day = dateTimeFormat(date.getDate());
+		var month = dateTimeFormat(date.getMonth() + 1);
+		var year = dateTimeFormat(date.getFullYear());
+
+		var hours = dateTimeFormat(date.getHours());
+		var minutes = dateTimeFormat(date.getMinutes());
+
+		var time_elem = document.querySelector('#date .time span');
+		var date_elem = document.querySelector('#date .date span');
+
+		date_elem.innerText = `${day}.${month}.${year}`;
+		time_elem.innerText = `${hours}:${minutes}`;
+	}
+
+	function turnLightsHandler() {
+		if(turn_left) {
+			document.getElementById(`turn_signal_left`).classList.toggle('active');
+		}
+
+		if(turn_right) {
+			document.getElementById(`turn_signal_right`).classList.toggle('active');
+		}
+
+		if(Boolean(turn_left) == false && Boolean(turn_right) == false) {
+			clearInterval(turn_signal_timer);
+			turn_signal_timer = null;
+		}
+	}
+
+	function setTurnLight(type, value) {
+		if(type == 'left' || type == 'right') {
+			if(turn_signal_timer == null && Boolean(value) == true) {
+				turn_signal_timer = setInterval(turnLightsHandler, 400);
+			}
+
+			if(type == 'left') {
+				turn_left = Boolean(value);
+			}
+			else {
+				turn_right = Boolean(value);
+			}
+
+			document.getElementById(`turn_signal_${type}`).classList.remove('active');
+
+			if(Boolean(value) == true) {
+				document.getElementById(`turn_signal_${type}`).classList.add('active');
+			}
+		}
+	}
+
+	function clearTransmissionGears(type) {
+		if(type == 'manual' || type == 'automatic') {
+			var gear_list = document.getElementById(`transmission_${type}`).getElementsByClassName('gear');
+
+			for(var idx = 0; idx < gear_list.length; idx++) {
+				gear_list[idx].classList.remove('active');
+			}
+		}
+	}
+
+	function setTransmissionGear(type, gear) {
+		if(type == 'train') {
+			document.querySelector("#train_transmission").classList.remove("forward");
+			document.querySelector("#train_transmission").classList.remove("back");
+			let cls = "";
+			if(gear == 'n') cls = "";
+			if(gear == 'r') cls = "back";
+			if(gear == 'd') cls = "forward";
+			document.querySelector("#train_transmission").classList.add(cls);
+		}
+		if(type == 'manual' || type == 'automatic') {
+			clearTransmissionGears(type);
+
+			var gear_elem = document.getElementById(`t${type[0]}_gear_${gear}`);
+
+			if(gear_elem !== null) {
+				gear_elem.classList.add('active');
+			}
+		}
+	}
+
+	// every minute timer
+	setInterval(() => {
+		updateDateTime();
+	}, 60 * 1000);
+
+var trans = '';
+
+function test(){
+  
+  translit(test);
+  alert(trans);
+}
+
+function translit(word){
+  var converter = {
+    'а': 'A',    'б': 'B',    'в': 'V',    'г': 'G',    'д': 'D',
+    'е': 'E',    'ё': 'E',    'ж': 'ZH',   'з': 'Z',    'и': 'I',
+    'й': 'Y',    'к': 'K',    'л': 'L',    'м': 'M',    'н': 'N',
+    'о': 'O',    'п': 'P',    'р': 'R',    'с': 'S',    'т': 'T',
+    'у': 'U',    'ф': 'F',    'х': 'H',    'ц': 'C',    'ч': 'CH',
+    'ш': 'SH',   'щ': 'SCH',  'ь': '',     'ы': 'Y',    'ъ': '',
+    'э': 'E',    'ю': 'YU',   'я': 'YA',
+ 
+    'А': 'A',    'Б': 'B',    'В': 'V',    'Г': 'G',    'Д': 'D',
+    'Е': 'E',    'Ё': 'E',    'Ж': 'ZH',   'З': 'Z',    'И': 'I',
+    'Й': 'Y',    'К': 'K',    'Л': 'L',    'М': 'M',    'Н': 'N',
+    'О': 'O',    'П': 'P',    'Р': 'R',    'С': 'S',    'Т': 'T',
+    'У': 'U',    'Ф': 'F',    'Х': 'H',    'Ц': 'C',    'Ч': 'CH',
+    'Ш': 'SH',   'Щ': 'SCH',  'Ь': '',     'Ы': 'Y',    'Ъ': '',
+    'Э': 'E',    'Ю': 'YU',   'Я': 'YA'
+  };
+ 
+  for (var i = 0; i < word.length; ++i ) {
+    if (converter[word[i]] == undefined){
+      trans += word[i];
+    } else {
+      trans += converter[word[i]];
+    }
+  }
+ 
+  return trans;
+}
+
+var result = '';
+
+function translite(word){
+	var conv = {
+    'а': 'A',    'б': 'B',    'в': 'V',    'г': 'G',    'д': 'D',
+    'е': 'E',    'ё': 'E',    'ж': 'ZH',   'з': 'Z',    'и': 'I',
+    'й': 'Y',    'к': 'K',    'л': 'L',    'м': 'M',    'н': 'N',
+    'о': 'O',    'п': 'P',    'р': 'R',    'с': 'S',    'т': 'T',
+    'у': 'U',    'ф': 'F',    'х': 'H',    'ц': 'C',    'ч': 'CH',
+    'ш': 'SH',   'щ': 'SCH',  'ь': '',     'ы': 'Y',    'ъ': '',
+    'э': 'E',    'ю': 'YU',   'я': 'YA',
+ 
+    'А': 'A',    'Б': 'B',    'В': 'V',    'Г': 'G',    'Д': 'D',
+    'Е': 'E',    'Ё': 'E',    'Ж': 'ZH',   'З': 'Z',    'И': 'I',
+    'Й': 'Y',    'К': 'K',    'Л': 'L',    'М': 'M',    'Н': 'N',
+    'О': 'O',    'П': 'P',    'Р': 'R',    'С': 'S',    'Т': 'T',
+    'У': 'U',    'Ф': 'F',    'Х': 'H',    'Ц': 'C',    'Ч': 'CH',
+    'Ш': 'SH',   'Щ': 'SCH',  'Ь': '',     'Ы': 'Y',    'Ъ': '',
+    'Э': 'E',    'Ю': 'YU',   'Я': 'YA'
+  };
+ 
+  for (var i = 0; i < word.length; ++i ) {
+    if (conv[word[i]] == undefined){
+		result += word[i];
+    } else {
+		result+= conv[word[i]];
+    }
+  }
+ 
+  return result;
+}
+
+	//if(typeof cef !== 'undefined') {
+		cef.emit("game:hud:setComponentVisible", "interface", false);
+		
+		cef.emit("game:data:pollPlayerStats", true, 150);
+
+		cef.on("game:data:playerStats", (hp, max_hp, arm, breath, wanted, weapon, ammo, max_ammo, money, speed) => {
+			setBar('health', hp);
+			setBar('armour', arm);
+
+			var weapon_img = getWeaponImage(weapon);
+			var ammo_text = '';
+
+			if(weapon_img !== 'fist') {
+				ammo_text = `${ammo}-${(max_ammo-ammo)}`;
+			}
+
+			document.getElementById('img_weapon').src = `img/weapon_${weapon_img}.png`;
+			document.getElementById('text_ammo').innerText = ammo_text;
+
+			document.getElementById('text_cash').innerText = `${moneyFormat(money)} ₽`;
+
+			if(!isInterfaceHidden('car')) {
+				var game_speed = Math.round(speed * 1.4);
+
+				document.getElementById('text_speed').innerText = `${game_speed}`;
+				setSpeedCircle(game_speed);
+			}
+			if(!isInterfaceHidden('train')) {
+				document.getElementById("train-speed").innerHTML = `${Math.round(speed * 1.4)}`;
+			}
+		});
+
+		cef.on('interface:set:icon', (type) => {
+			setSpeedIcon(type, true);
+		});
+
+		cef.on('interface:unset:icon', (type) => {
+			setSpeedIcon(type, false);
+		});
+
+		cef.on('interface:set:turnlight', (type, value) => {
+			setTurnLight(type, Boolean(parseInt(value)));
+		});
+
+		cef.on('interface:set:turn:left', (value) => {
+			setTurnLight('left', Boolean(parseInt(value)));
+		});
+
+		cef.on('interface:set:turn:right', (value) => {
+			setTurnLight('right', Boolean(parseInt(value)));
+		});
+
+		cef.on('interface:set:city', (city) => {
+			document.getElementById('text_city').innerText = city;
+		});
+
+		cef.on("interface:set:street", (street) => {
+			document.getElementById('text_street').innerText = street;
+		});
+
+		cef.on("interface:set:card", (card) => {
+			document.getElementById('text_card').innerText = `${moneyFormat(card)} ₽`;
+		});
+
+		cef.on('interface:set:need', (type, value) => {
+			if(type == 'food' || type == 'drink') {
+				setNeed(type, value);
+			}
+		});
+
+		cef.on('interface:set:fuel', (value) => {
+			document.getElementById('text_fuel').innerText = `${value.toFixed(1)}`;
+		});
+
+		cef.on('interface:set:mileage', (value) => {
+			document.getElementById('text_mileage').innerText = `${value} км`;
+		});
+
+		cef.on('interace:set:fuelmil', (fuel, mileage) => {
+			document.getElementById('text_fuel').innerText = `${fuel.toFixed(1)}`;
+			document.getElementById('text_mileage').innerText = `${mileage} км`;
+
+			if(fuel < 5) {
+				document.getElementById('fuel_icon').classList.add("active");
+				document.getElementById('text_fuel').classList.add("active");
+			} else {
+				document.getElementById('fuel_icon').classList.remove("active");
+				document.getElementById('text_fuel').classList.remove("active");
+			}
+		});
+
+		cef.on("interface:show", (name) => {
+			showInterface(name, true);
+		});
+
+		cef.on('interface:hide', (name) => {
+			showInterface(name, false);
+		});
+
+		cef.on('interface:showtrans', (name) => {
+			showTransmission(name, true);
+		});
+
+		cef.on('interface:hidetrans', (name) => {
+			showTransmission(name, false);
+		});
+
+		cef.on('interface:set:gear', (type, gear) => {
+			setTransmissionGear(type, gear);
+		});
+
+		// Допиши это к остальным cef.on в index.html
+		cef.on('interface:set:showPassport', (surname, name, patronymic, sex, birth, avatar) => {
+			// Находим блок паспорта по ID
+			var passDiv = document.getElementById('passport');
+			if(passDiv) {
+				passDiv.style.display = "block";
+				// Заполняем данные
+				document.getElementById('surname').innerText = surname;
+				document.getElementById('name').innerText = name;
+				document.getElementById('patronymic').innerText = patronymic;
+			}
+		});
 
 		cef.on('interface:set:hidePassport', (surname, name, patronymic, sex, birthdate, avatar) => {
 			hidePassport(surname, name, patronymic, sex, birthdate, avatar);
@@ -584,18 +1037,10 @@
 		cef.on('interface:hide:colorpicker', () => {
 			showColorPicker(false);
 		})
-
-		cef.on('interface:set:showPassport', (surname, name, patronymic, sex, birthdate, avatar) => {
-	    console.log("Событие получено! Данные:", surname, name, patronymic, sex, birthdate, avatar);
-	    
-	    var passDiv = document.getElementById('passport');
-	    if (passDiv) {
-	        passDiv.style.display = "block"; // Пытаемся принудительно показать блок
-	        console.log("Блок passport должен был стать видимым");
-	    } else {
-	        console.error("Ошибка: элемент с ID passport не найден в DOM!");
-	    }
-	});
+			// Этот код будет логировать ВСЕ события, которые приходят из мода
+		cef.on('*', (eventName, ...args) => {
+			console.log("Пришло событие от сервера:", eventName, args);
+		});
 		//sudavatar, sudday, sudmonth, sudyear, sudnumber, sudfamily, sudname, sudnoname, sudrang
 
 //skavatar, sknumber, skday, skmonth, skyear, sktoday, sktomonth, sktoyear
