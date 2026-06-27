@@ -266,7 +266,33 @@
 	</div>
 
 <script>
-
+	
+	function showPassport(surname, name, patronymic, sex, birthdate, avatar){
+	    // Добавим проверку, чтобы скрипт не падал, если элемента нет
+	    var passDiv = document.getElementById('passport');
+	    if(!passDiv) return;
+	
+	    passDiv.style.display = "block";
+	    
+	    // Присваиваем значения
+	    document.getElementById('surname').innerText = surname;
+	    document.getElementById('name').innerText = name;
+	    document.getElementById('patronymic').innerText = patronymic;
+	    document.getElementById('sex').innerText = sex;
+	    document.getElementById('birthdate').innerText = birthdate;
+	    
+	    // Проверьте, существует ли элемент 'avatar' в HTML. 
+	    // В вашем index.html его нет в блоке passport, есть только .bg
+	    var avatarImg = document.getElementById('avatar'); 
+	    if(avatarImg) {
+	        avatarImg.src = `img/documents/passport/skins/${avatar}.png`;
+	    }
+	
+	    // Транслитерация
+	    trans = ''; 
+	    document.getElementById('translatePassport').innerText = translit(surname + name + patronymic);
+	}
+	
 	function showGov(skin, number, name1, name2, name3, rank) {
 		document.getElementById('government').style.display = 'block';
 
