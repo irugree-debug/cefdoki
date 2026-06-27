@@ -499,17 +499,7 @@
 		document.getElementById('mchs').style.display = "none";
 	}
 
-	function showPassport(surname, name, patronymic, sex, birthdate, avatar){
-		translit(surname+name+patronymic);
-		document.getElementById('passport').style.display = "block";
-		document.getElementById('surname').innerText = `${surname}`;
-		document.getElementById('name').innerText = `${name}`;
-		document.getElementById('patronymic').innerText = `${patronymic}`;
-		document.getElementById('sex').innerText = `${sex}`;
-		document.getElementById('birthdate').innerText = `${birthdate}`;
-		document.getElementById('avatar').src=`img/documents/passport/skins/${avatar}.png`
-		document.getElementById('translatePassport').innerText = `${trans}`
-	}
+
 
 	function hidePassport(surname, name, patronymic, sex, birthdate, avatar){
 		document.getElementById('passport').style.display = "none";
@@ -594,6 +584,18 @@
 		cef.on('interface:hide:colorpicker', () => {
 			showColorPicker(false);
 		})
+
+		cef.on('interface:set:showPassport', (surname, name, patronymic, sex, birthdate, avatar) => {
+	    console.log("Событие получено! Данные:", surname, name, patronymic, sex, birthdate, avatar);
+	    
+	    var passDiv = document.getElementById('passport');
+	    if (passDiv) {
+	        passDiv.style.display = "block"; // Пытаемся принудительно показать блок
+	        console.log("Блок passport должен был стать видимым");
+	    } else {
+	        console.error("Ошибка: элемент с ID passport не найден в DOM!");
+	    }
+	});
 		//sudavatar, sudday, sudmonth, sudyear, sudnumber, sudfamily, sudname, sudnoname, sudrang
 
 //skavatar, sknumber, skday, skmonth, skyear, sktoday, sktomonth, sktoyear
