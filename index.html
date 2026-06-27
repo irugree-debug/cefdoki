@@ -2,19 +2,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>GreentechHUD</title>
-	<link rel="stylesheet" href="css/fonts.css">
 	<link rel="stylesheet" href="css/main.css">
-	<link rel="stylesheet" href="css/logo.css">
-	<link rel="stylesheet" href="css/bars.css">
-	<link rel="stylesheet" href="css/gun.css">
-	<link rel="stylesheet" href="css/money.css">
-	<link rel="stylesheet" href="css/location.css">
-	<link rel="stylesheet" href="css/map.css">
-	<link rel="stylesheet" href="css/date.css">
-	<link rel="stylesheet" href="css/weather.css">
-	<link rel="stylesheet" href="css/transmission.css">
-	<link rel="stylesheet" href="css/speedometer.css">
-	<link rel="stylesheet" href="css/train.css">
 	<link rel="stylesheet" href="css/passport.css">
 	<link rel="stylesheet" href="css/medical.css">
 	<link rel="stylesheet" href="css/vu.css">
@@ -23,12 +11,10 @@
 	<link rel="stylesheet" href="css/sud.css">
 	<link rel="stylesheet" href="css/prokuror.css">
 	<link rel="stylesheet" href="css/mvd.css">
-	<link rel="stylesheet" href="css/government.css">
 
 	<!-- colorpicker -->
 	<script src="js/jquery-3.3.1.min.js"></script>
 	<link rel="stylesheet" href="css/spectrum.css">
-    <link rel="stylesheet" href="css/colorpicker.css">
     <script src="js/spectrum.js"></script>
 	<!-- -->
 	
@@ -280,133 +266,6 @@
 	</div>
 
 <script>
-	const COLORPICKER_TICK = 10;
-
-	var cs_palette_index = -1,
-		cs_picker_tick = 0,
-		cs_last_color = [
-			[255, 255, 255],
-			[255, 255, 255]
-		];
-
-	// color-picker
-
-	var color_palette = [
-		[255, 255, 255],
-		[209, 211, 212],
-		[128, 130, 133],
-		[255, 156, 161],
-		[226, 3, 56],
-		[180, 10, 27],
-		[128, 240, 255],
-		[23, 113, 241],
-		[35, 0, 176],
-		[118, 254, 197],
-		[0, 207, 145],
-		[0, 65, 86],
-		[109, 110, 113],
-		[65, 64, 66],
-		[0, 0, 0],
-		[85, 107, 47],
-		[255, 69, 0],
-		[218, 165, 32],
-		[138, 43, 226],
-		[128, 0, 128],
-		[139, 69, 19],
-		[255, 228, 181],
-		[127, 255, 0],
-		[250, 128, 114]
-	];
-
-	function colorCallback(r, g, b, type = 0) {
-		if(type) {
-			if(++cs_picker_tick < COLORPICKER_TICK) {
-				return;
-			}
-			else {
-				cs_picker_tick = 0;
-			}
-		}
-
-		cs_last_color[type][0] = r;
-		cs_last_color[type][1] = g;
-		cs_last_color[type][2] = b;
-
-		cef.emit("interface:colorpicker:color", r, g, b);
-	}
-
-	function colorResponse(response) {
-		cef.emit("interface:colorpicker:response", response);
-	}
-
-	function showColorPicker(show) {
-		document.getElementById('color-selector').style.display = (show) ? 'block' : 'none';
-
-		if(show) {
-			initColorPalette();
-			selectPaletteType(1);
-		}
-	}
-
-	function initColorPalette() {
-		var palette_html = '';
-
-		for(var idx = 0; idx < color_palette.length; idx++) {
-			var color = color_palette[idx];
-
-			palette_html += `
-				<div class="color-selector-paint"
-				style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]})"
-				onclick="selectColorPalette(${idx})"></div>`;
-		}
-
-		document.getElementById('cs_palette_box').innerHTML = palette_html;
-
-		selectColorPalette(0);
-	}
-
-	function selectColorPalette(index) {
-		var paint_elem = document.getElementsByClassName('color-selector-paint');
-
-		if(cs_palette_index != -1) {
-			paint_elem[cs_palette_index].classList.toggle('cs_selected', 0);
-		}
-
-		paint_elem[index].classList.toggle('cs_selected', 1);
-		cs_palette_index = index;
-
-		colorCallback(color_palette[index][0], color_palette[index][1], color_palette[index][2])
-	}
-
-	function selectPaletteType(type) {
-		var palette_elem = document.getElementById('cs_palette_box'),
-			picker_elem = document.getElementById('cs_picker_box');
-
-		palette_elem.style.display = (type) ? 'none' : 'grid';
-		picker_elem.style.display = (type) ? 'block' : 'none';
-
-		document.getElementById('cs_palette').classList.toggle('cs_selected', (!type));
-		document.getElementById('cs_picker').classList.toggle('cs_selected', (type));
-
-		colorCallback(cs_last_color[type][0], cs_last_color[type][1], cs_last_color[type][2], type);
-	}
-
-	$("#color-picker").spectrum({ flat: true, allowEmpty: !1, showAlpha: false, showPallete: false }),
-		(window.onload = function () {
-			var e = $(".scroll");
-			e.mousedown(function () {
-				var i = this.scrollLeft + event.pageX;
-				e.mousemove(function () {
-					return (this.scrollLeft = i - event.pageX), !1;
-				});
-			}),
-				$(window).mouseup(function () {
-					e.off("mousemove");
-				});
-		});
-
-	// ---
-
 
 	function showGov(skin, number, name1, name2, name3, rank) {
 		document.getElementById('government').style.display = 'block';
